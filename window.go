@@ -2,7 +2,7 @@ package wingo
 
 import (
 	"errors"
-	"github.com/AllenDang/w32"
+	"github.com/yamnikov-oleg/w32"
 	"syscall"
 	"unsafe"
 )

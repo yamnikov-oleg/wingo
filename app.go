@@ -1,7 +1,7 @@
 package wingo
 
 import (
-	"github.com/AllenDang/w32"
+	"github.com/yamnikov-oleg/w32"
 	"unsafe"
 )
 

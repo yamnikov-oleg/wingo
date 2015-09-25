@@ -1,8 +1,8 @@
 package wingo
 
 import (
-	"github.com/AllenDang/w32"
 	"errors"
+	"github.com/yamnikov-oleg/w32"
 )
 
 var menuItems []*MenuItem
@@ -10,12 +10,12 @@ var miCount uint = 0
 
 type Menu struct {
 	handle w32.HMENU
-	Items []*MenuItem
+	Items  []*MenuItem
 }
 
 type MenuItem struct {
-	Text string
-	id uintptr
+	Text    string
+	id      uintptr
 	Submenu *Menu
 	OnClick func(*MenuItem)
 }
@@ -31,7 +31,7 @@ func findMenuItemById(id uintptr) (*MenuItem, error) {
 
 func NewMenu() *Menu {
 	m := new(Menu)
-	m.handle= w32.CreateMenu()
+	m.handle = w32.CreateMenu()
 	return m
 }
 
@@ -53,6 +53,6 @@ func (m *Menu) AppendPopup(t string) *Menu {
 	mi.Text = t
 	mi.id = uintptr(menu.handle)
 	mi.Submenu = menu
-	w32.AppendMenu(m.handle, w32.MF_STRING | w32.MF_POPUP, mi.id, t)
+	w32.AppendMenu(m.handle, w32.MF_STRING|w32.MF_POPUP, mi.id, t)
 	return menu
 }
