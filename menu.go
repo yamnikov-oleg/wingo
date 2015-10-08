@@ -35,6 +35,10 @@ func NewMenu() *Menu {
 	return m
 }
 
+func NewContextMenu() *Menu {
+	return NewMenu().AppendPopup("")
+}
+
 func (m *Menu) AppendItemText(t string) *MenuItem {
 	mi := new(MenuItem)
 	mi.Text = t
@@ -55,4 +59,12 @@ func (m *Menu) AppendPopup(t string) *Menu {
 	mi.Submenu = menu
 	w32.AppendMenu(m.handle, w32.MF_STRING|w32.MF_POPUP, mi.id, t)
 	return menu
+}
+
+func (m *Menu) StartContext(wnd *Window) {
+	x, y, ok := w32.GetCursorPos()
+	if ok {
+		wnd.Focus()
+		w32.TrackPopupMenu(m.handle, 0, x, y, wnd.handle)
+	}
 }

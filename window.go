@@ -20,12 +20,13 @@ type Window struct {
 
 	trayIconData *w32.NOTIFYICONDATA
 
-	OnSizeChanged func(*Window, Vector)
-	OnMinimize    func(*Window)
-	OnMaximize    func(*Window)
-	OnTrayClick   func(*Window)
-	OnClose       func(*Window) bool
-	OnDestroy     func(*Window)
+	OnSizeChanged    func(*Window, Vector)
+	OnMinimize       func(*Window)
+	OnMaximize       func(*Window)
+	OnTrayClick      func(*Window)
+	OnTrayRightClick func(*Window)
+	OnClose          func(*Window) bool
+	OnDestroy        func(*Window)
 }
 
 func registerClasses() error {
@@ -59,6 +60,10 @@ func findWndByHandle(h w32.HWND) (*Window, error) {
 		}
 	}
 	return nil, errors.New("No window with such handle")
+}
+
+func anyWindow() *Window {
+	return windows[0]
 }
 
 func wndProc(hwnd w32.HWND, msg uint32, wParam, lParam uintptr) uintptr {
@@ -111,6 +116,10 @@ func wndProc(hwnd w32.HWND, msg uint32, wParam, lParam uintptr) uintptr {
 		case w32.WM_LBUTTONUP:
 			if wnd.OnTrayClick != nil {
 				wnd.OnTrayClick(wnd)
+			}
+		case w32.WM_RBUTTONUP:
+			if wnd.OnTrayRightClick != nil {
+				wnd.OnTrayRightClick(wnd)
 			}
 		}
 		return 0
@@ -189,6 +198,10 @@ func (w *Window) Hide() {
 
 func (w *Window) Restore() {
 	w32.ShowWindow(w.handle, w32.SW_RESTORE)
+}
+
+func (w *Window) Focus() {
+	w32.SetForegroundWindow(w.handle)
 }
 
 func (w *Window) GetTitle() string {
