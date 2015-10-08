@@ -166,7 +166,11 @@ func (w *Window) Destroy() {
 }
 
 func (w *Window) Show() {
-	w32.ShowWindow(w.handle, w32.SW_SHOWDEFAULT)
+	w32.ShowWindow(w.handle, w32.SW_SHOW)
+}
+
+func (w *Window) Hide() {
+	w32.ShowWindow(w.handle, w32.SW_HIDE)
 }
 
 func (w *Window) GetTitle() string {
