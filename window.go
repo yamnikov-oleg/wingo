@@ -19,6 +19,8 @@ type Window struct {
 	controls    []controlI
 
 	OnSizeChanged func(*Window, Vector)
+	OnMinimize    func(*Window)
+	OnMaximize    func(*Window)
 	OnClose       func(*Window) bool
 	OnDestroy     func(*Window)
 }
@@ -64,6 +66,17 @@ func wndProc(hwnd w32.HWND, msg uint32, wParam, lParam uintptr) uintptr {
 
 	switch msg {
 	case w32.WM_SIZE:
+		if wParam == w32.SIZE_MINIMIZED {
+			if wnd.OnMinimize != nil {
+				wnd.OnMinimize(wnd)
+			}
+			// We don't want to send OnSizeChanged notification then
+			return 0
+		} else if wParam == w32.SIZE_MAXIMIZED {
+			if wnd.OnMaximize != nil {
+				wnd.OnMaximize(wnd)
+			}
+		}
 		w := int(w32.LOWORD(uint32(lParam)))
 		h := int(w32.HIWORD(uint32(lParam)))
 		if wnd.OnSizeChanged != nil {
