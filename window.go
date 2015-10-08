@@ -182,6 +182,10 @@ func (w *Window) Hide() {
 	w32.ShowWindow(w.handle, w32.SW_HIDE)
 }
 
+func (w *Window) Restore() {
+	w32.ShowWindow(w.handle, w32.SW_RESTORE)
+}
+
 func (w *Window) GetTitle() string {
 	return w32.GetWindowText(w.handle)
 }
