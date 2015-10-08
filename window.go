@@ -189,6 +189,12 @@ func (w *Window) ApplyMenu(m *Menu) {
 	w32.SetMenu(w.handle, m.handle)
 }
 
+func (w *Window) SetIcon(icon Icon) {
+	w32.SendMessage(w.handle, w32.WM_SETICON, w32.ICON_BIG, uintptr(icon))
+	w32.SendMessage(w.handle, w32.WM_SETICON, w32.ICON_SMALL, uintptr(icon))
+	w32.SendMessage(w.handle, w32.WM_SETICON, w32.ICON_SMALL2, uintptr(icon))
+}
+
 func (w *Window) NewLabel() *Label {
 	l := new(Label)
 	l.id = getNewControlId()
