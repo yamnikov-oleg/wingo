@@ -18,6 +18,8 @@ type Window struct {
 	minimizable bool
 	controls    []controlI
 
+	trayIconData *w32.NOTIFYICONDATA
+
 	OnSizeChanged func(*Window, Vector)
 	OnMinimize    func(*Window)
 	OnMaximize    func(*Window)
@@ -118,6 +120,9 @@ func wndProc(hwnd w32.HWND, msg uint32, wParam, lParam uintptr) uintptr {
 		}
 		return 0
 	case w32.WM_DESTROY:
+		if wnd.trayIconData != nil {
+			w32.Shell_NotifyIcon(w32.NIM_DELETE, wnd.trayIconData)
+		}
 		if wnd.OnDestroy != nil {
 			wnd.OnDestroy(wnd)
 		} else {
@@ -228,9 +233,12 @@ func (w *Window) SetIcon(icon Icon) {
 }
 
 func (w *Window) AddTrayIcon(ico Icon, tip string) {
-	var nid w32.NOTIFYICONDATA
-	nid = w32.NOTIFYICONDATA{
-		/* Size */ uint32(unsafe.Sizeof(nid)),
+	if w.trayIconData != nil {
+		return
+	}
+
+	w.trayIconData = &w32.NOTIFYICONDATA{
+		/* Size */ uint32(unsafe.Sizeof(*w.trayIconData)),
 		/* Wnd */ w.handle,
 		/* ID */ 1,
 		/* Flags */ w32.NIF_MESSAGE | w32.NIF_ICON | w32.NIF_TIP | w32.NIF_SHOWTIP,
@@ -248,9 +256,9 @@ func (w *Window) AddTrayIcon(ico Icon, tip string) {
 	}
 
 	tipbuf := syscall.StringToUTF16(tip)
-	copy(nid.Tip[:], tipbuf)
+	copy(w.trayIconData.Tip[:], tipbuf)
 
-	w32.Shell_NotifyIcon(w32.NIM_ADD, &nid)
+	w32.Shell_NotifyIcon(w32.NIM_ADD, w.trayIconData)
 }
 
 func (w *Window) NewLabel() *Label {
