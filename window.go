@@ -7,6 +7,8 @@ import (
 	"unsafe"
 )
 
+const WM_TRAYICON = w32.WM_USER + 1
+
 var wndClassName, _ = syscall.UTF16PtrFromString("WingoWindow")
 var windows []*Window
 
@@ -193,6 +195,32 @@ func (w *Window) SetIcon(icon Icon) {
 	w32.SendMessage(w.handle, w32.WM_SETICON, w32.ICON_BIG, uintptr(icon))
 	w32.SendMessage(w.handle, w32.WM_SETICON, w32.ICON_SMALL, uintptr(icon))
 	w32.SendMessage(w.handle, w32.WM_SETICON, w32.ICON_SMALL2, uintptr(icon))
+}
+
+func (w *Window) AddTrayIcon(ico Icon, tip string) {
+	var nid w32.NOTIFYICONDATA
+	nid = w32.NOTIFYICONDATA{
+		/* Size */ uint32(unsafe.Sizeof(nid)),
+		/* Wnd */ w.handle,
+		/* ID */ 1,
+		/* Flags */ w32.NIF_MESSAGE | w32.NIF_ICON | w32.NIF_TIP | w32.NIF_SHOWTIP,
+		/* CallbackMessage */ WM_TRAYICON,
+		/* Icon */ w32.HICON(ico),
+		/* Tip */ [128]uint16{},
+		/* State */ 0,
+		/* StateMask */ 0,
+		/* Info */ [256]uint16{},
+		/* TimeoutOrVersion */ w32.NOTIFYICON_VERSION_4,
+		/* InfoTitle */ [64]uint16{},
+		/* InfoFlags */ 0,
+		/* Item */ w32.GUID{},
+		/* BalloonIcon */ 0,
+	}
+
+	tipbuf := syscall.StringToUTF16(tip)
+	copy(nid.Tip[:], tipbuf)
+
+	w32.Shell_NotifyIcon(w32.NIM_ADD, &nid)
 }
 
 func (w *Window) NewLabel() *Label {
