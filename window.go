@@ -23,6 +23,7 @@ type Window struct {
 	OnSizeChanged    func(*Window, Vector)
 	OnMinimize       func(*Window)
 	OnMaximize       func(*Window)
+	OnBlur           func(*Window)
 	OnTrayClick      func(*Window)
 	OnTrayRightClick func(*Window)
 	OnClose          func(*Window) bool
@@ -89,6 +90,11 @@ func wndProc(hwnd w32.HWND, msg uint32, wParam, lParam uintptr) uintptr {
 		h := int(w32.HIWORD(uint32(lParam)))
 		if wnd.OnSizeChanged != nil {
 			wnd.OnSizeChanged(wnd, Vector{w, h})
+		}
+		return 0
+	case w32.WM_KILLFOCUS:
+		if wnd.OnBlur != nil {
+			wnd.OnBlur(wnd)
 		}
 		return 0
 	case w32.WM_COMMAND:
