@@ -21,6 +21,7 @@ type Window struct {
 	OnSizeChanged func(*Window, Vector)
 	OnMinimize    func(*Window)
 	OnMaximize    func(*Window)
+	OnTrayClick   func(*Window)
 	OnClose       func(*Window) bool
 	OnDestroy     func(*Window)
 }
@@ -102,6 +103,14 @@ func wndProc(hwnd w32.HWND, msg uint32, wParam, lParam uintptr) uintptr {
 			dispatchControlEvent(controlHandle, notifCode)
 		}
 
+		return 0
+	case WM_TRAYICON:
+		switch w32.LOWORD(uint32(lParam)) {
+		case w32.WM_LBUTTONUP:
+			if wnd.OnTrayClick != nil {
+				wnd.OnTrayClick(wnd)
+			}
+		}
 		return 0
 	case w32.WM_CLOSE:
 		if wnd.OnClose == nil || wnd.OnClose(wnd) {
